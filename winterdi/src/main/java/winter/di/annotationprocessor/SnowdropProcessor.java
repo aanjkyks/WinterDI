@@ -30,8 +30,7 @@ public class SnowdropProcessor {
                         .orElseGet(() -> instantiate(param.getType()))
                 ).toArray();
         var annotation = clazz.getAnnotation(Snowdrop.class);
-        var name = Optional.ofNullable(annotation.name())
-                .or(() -> Optional.ofNullable(annotation.value()))
+        var name = Optional.ofNullable(fromAnnotation(annotation))
                 .orElseGet(() -> SnowdropUtil.decapitalize(clazz.getSimpleName()));
         try {
             T instance = (T) mostArgsConstructor.newInstance(args);
@@ -41,5 +40,11 @@ public class SnowdropProcessor {
                  InvocationTargetException e) {
             throw new RuntimeException("something went wrong", e);
         }
+    }
+
+    private static String fromAnnotation(Snowdrop annotation) {
+        if (!annotation.name().isBlank()) return annotation.name();
+        if (!annotation.value().isBlank()) return annotation.value();
+        return null;
     }
 }
